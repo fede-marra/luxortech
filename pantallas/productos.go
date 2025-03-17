@@ -10,12 +10,11 @@ import (
 
 func PantallaProductos() tview.Primitive {
 
-	productos := tview.NewBox()
+	productos := tview.NewTextView()
 	productos.SetTitle("Seccion de Productos").
 		SetTitleAlign(tview.AlignCenter).
 		SetBorder(true)
 
-	
 	newProducto := tview.NewForm().
 		AddInputField("Tipo", "", 20, nil, nil).
 		AddInputField("Nombre", "", 20, nil, nil).
@@ -57,9 +56,11 @@ func PantallaProductos() tview.Primitive {
 			fmt.Printf("Error, stock Invalido: %v\n", err)
 			return
 		}
+		productos.SetText("Registro Guardado")
+		
 		// Guardar en la base de datos
 
-		err = db.InsertarProducto(tipo, nombre, codigo, costo, precio, garantia, proveedor, comentario,int(stock))
+		err = db.InsertarProducto(tipo, nombre, codigo, costo, precio, garantia, proveedor, comentario, int(stock))
 		if err != nil {
 			fmt.Printf("Error al guardar el producto: %v\n", err)
 		}
@@ -71,10 +72,12 @@ func PantallaProductos() tview.Primitive {
 		}).
 		SetBorder(true).SetTitle("Formulario de Productos")
 
-		
-
-
 	//productos.SetText(newProducto.GetTitle())
-	return productos
+
+	layout := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(productos, 0, 1, true).
+		AddItem(newProducto, 0, 3, true)
+	return layout
 
 }

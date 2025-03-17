@@ -6,7 +6,7 @@ import (
 
 // InsertarProducto guarda un producto en la base de datos
 func InsertarProducto(tipo string, nombre string, codigo string, costo float64, precio float64, garantia string, proveedor string, comentario string, stock int) error {
-	db, err := CrearBaseDeDatos()
+	db, err := ConectarBaseDeDatos()
 	if err != nil {
 		return err
 	}

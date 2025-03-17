@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"sistema/db"
-
 	"sistema/pantallas"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,7 +15,11 @@ func main() {
 	app.EnableMouse(true)
 
 	// Llamamos a la función CrearBaseDeDatos desde el paquete db
-	dbConn, err := db.CrearBaseDeDatos()
+	err := db.CrearBaseDeDatos()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbConn, err := db.ConectarBaseDeDatos()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,43 +29,61 @@ func main() {
 	fmt.Println("Base de datos y tabla creadas exitosamente.")
 
 	// Contenedor de Pantallas
+	/*
+
+		pages := tview.NewPages()
+
+		// Agregar pantallas desde los archivos separados
+		pages.AddPage("Ventas", pantallas.PantallaVentas(), true, true)
+		pages.AddPage("Productos", pantallas.PantallaProductos(), true, false)
+		pages.AddPage("Gastos", pantallas.PantallaGastos(), true, false)
+		pages.AddPage("Clientes", pantallas.PantallaClientes(), true, false)
+		pages.AddPage("Configuraciones", pantallas.PantallaConfiguraciones(), true, false)
+
+		menu := tview.NewList().
+			AddItem("Ventas", "", '1', func() { pages.SwitchToPage("Ventas") }).
+			AddItem("Productos", "", '2', func() { pages.SwitchToPage("Productos") }).
+			AddItem("Gastos", "", '3', func() { pages.SwitchToPage("Gastos") }).
+			AddItem("Clientes", "", '4', func() { pages.SwitchToPage("Clientes") }).
+			AddItem("Configuraciones", "", '5', func() { pages.SwitchToPage("Configuraciones") }).
+			AddItem("Salir", "", '6', func() {
+				modal := tview.NewModal()
+				modal.SetText("¿Estás seguro de que quieres salir?").
+					AddButtons([]string{"Sí", "No"}).
+					SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+						if buttonLabel == "Sí" {
+							app.Stop() // Cierra la app
+						} else {
+							pages.SwitchToPage("Ventas") // Vuelve a la última pantalla
+						}
+					}).SetFocus(1)
+				pages.AddPage("confirmacion", modal, true, true)
+			})
+
+		menu.SetBorder(true).
+			SetTitle("Menu")
+	*/
+
 	pages := tview.NewPages()
 
-	// Agregar pantallas desde los archivos separados
-	pages.AddPage("Ventas", pantallas.PantallaVentas(), true, true)
 	pages.AddPage("Productos", pantallas.PantallaProductos(), true, false)
-	pages.AddPage("Gastos", pantallas.PantallaGastos(), true, false)
-	pages.AddPage("Clientes", pantallas.PantallaClientes(), true, false)
-	pages.AddPage("Configuraciones", pantallas.PantallaConfiguraciones(), true, false)
 
 	menu := tview.NewList().
-		AddItem("Ventas", "", '1', func() { pages.SwitchToPage("Ventas") }).
-		AddItem("Productos", "", '2', func() { pages.SwitchToPage("Productos") }).
-		AddItem("Gastos", "", '3', func() { pages.SwitchToPage("Gastos") }).
-		AddItem("Clientes", "", '4', func() { pages.SwitchToPage("Clientes") }).
-		AddItem("Configuraciones", "", '5', func() { pages.SwitchToPage("Configuraciones") }).
+		AddItem("Productos", "", '2', func() { pages.SwitchToPage("Productos").SendToFront("Productos") }).
 		AddItem("Salir", "", '6', func() {
-			modal := tview.NewModal()
-			modal.SetText("¿Estás seguro de que quieres salir?").
-				AddButtons([]string{"Sí", "No"}).
-				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-					if buttonLabel == "Sí" {
-						app.Stop() // Cierra la app
-					} else {
-						pages.SwitchToPage("Ventas") // Vuelve a la última pantalla
-					}
-				}).SetFocus(1)
-			pages.AddPage("confirmacion", modal, true, true)
+			app.Stop()
 		})
+	menu.SetBorder(true).SetTitle("Menu")
 
-	menu.SetBorder(true).
-		SetTitle("Menu")
+	//top := tview.NewBox().SetBorder(true).SetTitle("Top")
 
-	layout := tview.NewFlex().
-		AddItem(menu, 25, 1, true).
-		AddItem(pages, 0, 2, false)
+	//bottom := tview.NewBox().SetBorder(true).SetTitle("Bottom (5 rows)")
+	flex := tview.NewFlex().
+		AddItem(menu, 0, 1, true).
+		AddItem(pages, 0, 6, false)
 
-	if err := app.SetRoot(layout, true).Run(); err != nil {
-		fmt.Print("Error en la ejecucion del sistema")
+	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
+		panic(err)
 	}
+
 }
