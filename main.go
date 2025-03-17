@@ -51,7 +51,7 @@ func main() {
 					} else {
 						pages.SwitchToPage("Ventas") // Vuelve a la última pantalla
 					}
-				})
+				}).SetFocus(1)
 			pages.AddPage("confirmacion", modal, true, true)
 		})
 
