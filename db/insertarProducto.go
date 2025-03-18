@@ -12,7 +12,7 @@ func InsertarProducto(tipo string, nombre string, codigo string, costo float64, 
 	}
 	defer db.Close()
 
-	query := `INSERT INTO productos (tipo, nombre, codigo, costo, precio, garantia, proveedor, comentario, stock) VALUES (?, ?, ?)`
+	query := `INSERT INTO productos (tipo, nombre, codigo, costo, precio, garantia, proveedor, comentario, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err = db.Exec(query, tipo, nombre, codigo, costo, precio, garantia, proveedor, comentario, stock)
 	if err != nil {
 		return err

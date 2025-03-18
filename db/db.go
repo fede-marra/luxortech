@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"log"
 )
 
 func CrearBaseDeDatos() error {
@@ -43,4 +44,22 @@ func ConectarBaseDeDatos() (*sql.DB, error) {
 		return nil, err // Devolvemos nil y el error en caso de falla
 	}
 	return db, nil
+}
+
+func ObtenerListaProductos(db *sql.DB) []string {
+	rows, err := db.Query("SELECT tipo FROM tiposProductos")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var tipos []string
+	for rows.Next() {
+		var tipo string
+		if err := rows.Scan(&tipo); err != nil {
+			log.Fatal(err)
+		}
+		tipos = append(tipos, tipo)
+	}
+	return tipos
 }

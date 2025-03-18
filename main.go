@@ -65,11 +65,19 @@ func main() {
 	*/
 
 	pages := tview.NewPages()
-
-	pages.AddPage("Productos", pantallas.PantallaProductos(), true, false)
+	// Agregar pantallas desde los archivos separados
+	pages.AddPage("Ventas", pantallas.PantallaVentas(), true, true)
+	pages.AddPage("Productos", pantallas.PantallaProductos(pages), true, false)
+	pages.AddPage("Gastos", pantallas.PantallaGastos(), true, false)
+	pages.AddPage("Clientes", pantallas.PantallaClientes(), true, false)
+	pages.AddPage("Configuraciones", pantallas.PantallaConfiguraciones(), true, false)
 
 	menu := tview.NewList().
+		AddItem("Ventas", "", '1', func() { pages.SwitchToPage("Ventas") }).
 		AddItem("Productos", "", '2', func() { pages.SwitchToPage("Productos").SendToFront("Productos") }).
+		AddItem("Gastos", "", '3', func() { pages.SwitchToPage("Gastos") }).
+		AddItem("Clientes", "", '4', func() { pages.SwitchToPage("Clientes") }).
+		AddItem("Configuraciones", "", '5', func() { pages.SwitchToPage("Configuraciones") }).
 		AddItem("Salir", "", '6', func() {
 			app.Stop()
 		})
@@ -78,9 +86,12 @@ func main() {
 	//top := tview.NewBox().SetBorder(true).SetTitle("Top")
 
 	//bottom := tview.NewBox().SetBorder(true).SetTitle("Bottom (5 rows)")
-	flex := tview.NewFlex().
-		AddItem(menu, 0, 1, true).
-		AddItem(pages, 0, 6, false)
+	/*flex := tview.NewFlex().
+	AddItem(menu, 0, 1, true).
+	AddItem(pages, 0, 6, false)
+	*/
+
+	flex := pantallas.MostrarLayout(menu, pages)
 
 	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
 		panic(err)
