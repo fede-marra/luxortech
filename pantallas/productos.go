@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sistema/db"
 	"strconv"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -18,9 +19,7 @@ func PantallaProductos(pages *tview.Pages) tview.Primitive {
 	*/
 	base, _ := db.ConectarBaseDeDatos()
 	tipos := db.ObtenerListaProductos(base)
-
 	tabla := db.CargarTablaProductos()
-
 
 	dropdown := tview.NewDropDown().
 		SetLabel("Tipos").
@@ -37,6 +36,7 @@ func PantallaProductos(pages *tview.Pages) tview.Primitive {
 		AddInputField("Stock", "", 20, nil, nil)
 
 	newProducto.SetTitle("Formulario").SetBorder(true)
+	
 	newProducto.AddButton("Guardar", func() {
 		_, tipo := dropdown.GetCurrentOption()
 		nombre := newProducto.GetFormItemByLabel("Nombre").(*tview.InputField).GetText()
@@ -76,7 +76,7 @@ func PantallaProductos(pages *tview.Pages) tview.Primitive {
 		}
 		//Actualiza la tabla de productos
 
-		db.ActualizarTabla(tabla)
+		db.ActualizarTabla(tabla, "")
 
 		// Función para mostrar el modal de confirmación
 		mostrarAviso := func(mensaje string) {
@@ -111,16 +111,38 @@ func PantallaProductos(pages *tview.Pages) tview.Primitive {
 			newProducto.GetFormItemByLabel("Comentario").(*tview.InputField).SetText("")
 			newProducto.GetFormItemByLabel("Stock").(*tview.InputField).SetText("")
 		}).
-		SetBorder(true).SetTitle("Formulario de Productos")
-	
+		SetBorder(false).SetTitle("Formulario de Productos")
+	// Input de Busqueda
+	buscar := tview.NewInputField().SetLabel("Buscar: ")
 
-	
+	// Evento cuando cambia el texto en el input
+	buscar.SetChangedFunc(func(texto string) {
+		db.ActualizarTabla(tabla, strings.ToUpper(texto))
+	})
 
+	// Evento de selección en la tabla
+	tabla.SetSelectable(true, false)
+	tabla.SetSelectedFunc(func(row, column int) {
+		if row > 0 {
+			producto := db.ObtenerProductoPorFila(row - 1) // Obtener el producto seleccionado
+			newProducto.GetFormItemByLabel("Nombre").(*tview.InputField).SetText(producto.Nombre)
+			newProducto.GetFormItemByLabel("Codigo").(*tview.InputField).SetText(producto.Codigo)
+			newProducto.GetFormItemByLabel("Costo").(*tview.InputField).SetText(fmt.Sprintf("%.2f", producto.Costo))
+			newProducto.GetFormItemByLabel("Precio").(*tview.InputField).SetText(fmt.Sprintf("%.2f", producto.Precio))
+			newProducto.GetFormItemByLabel("Garantia").(*tview.InputField).SetText(producto.Garantia)
+			newProducto.GetFormItemByLabel("Proveedor").(*tview.InputField).SetText(producto.Proveedor)
+			newProducto.GetFormItemByLabel("Comentario").(*tview.InputField).SetText(producto.Comentario)
+			newProducto.GetFormItemByLabel("Stock").(*tview.InputField).SetText(strconv.Itoa(producto.Stock))
+			pages.SendToFront("Productos") // Mantener la pantalla activa
+		}
+	})
 
 	layout := tview.NewFlex().
+		//	AddItem(buscarProducto, 0, 1, true).
 		SetDirection(tview.FlexColumn).
+		AddItem(buscar, 0, 1, true).
 		AddItem(newProducto, 0, 1, true).
-		AddItem(tabla, 0, 1, true)
+		AddItem(tabla, 0, 2, true)
 	return layout
 
 }

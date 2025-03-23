@@ -7,10 +7,10 @@ import (
 	"github.com/rivo/tview"
 )
 
-func ActualizarTabla(tabla *tview.Table) {
+func ActualizarTabla(tabla *tview.Table, texto string) {
 
 	base, _ := ConectarBaseDeDatos()
-	productos, err := ObtenerTodosLosProductos(base)
+	productos, err := ObtenerTodosLosProductos(base,texto)
 	if err != nil {
 		fmt.Printf("Error al obtener productos: %v\n", err)
 		return

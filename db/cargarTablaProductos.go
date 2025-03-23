@@ -11,8 +11,8 @@ func CargarTablaProductos() (tablas *tview.Table) {
 	// Crea la Tabla
 	tabla := tview.NewTable()
 	// Crea los bordes de las celdas
-	tabla.SetBorder(true).SetBorderColor(tcell.ColorAliceBlue)
-
+	tabla.SetBorder(false).SetBorderColor(tcell.ColorAliceBlue)
+	tabla.SetBorders(true)
 	headers := []string{"Id", "Tipo", "Nombre", "Codigo", "Precio", "Garantia", "Proveedor", "Comentario", "Stock"}
 	for i, header := range headers {
 		tabla.SetCell(0, i, tview.NewTableCell(header).
@@ -21,7 +21,7 @@ func CargarTablaProductos() (tablas *tview.Table) {
 			SetSelectable(false))
 	}
 	base, _ := ConectarBaseDeDatos()
-	productos, err := ObtenerTodosLosProductos(base)
+	productos, err := ObtenerTodosLosProductos(base,"")
 	if err != nil {
 		fmt.Printf("Error al obtener productos: %v\n", err)
 	}
